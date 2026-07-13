@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Required for correct iframe sizing — AEM section margins inflate shadow body */
+main > div,
+main > .section,
+main > .section:first-of-type {
+  margin: 0;
+}
+main > .section > div {
+  max-width: none;
+  padding: 0;
+}
+body {
+  overflow: auto;
+}
+
+main .get-product-details {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* Split detail card — image left, content right */
+main .get-product-details .product-detail-card {
+  display: flex;
+  flex-direction: row;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 620px;
+  min-height: 280px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+main .get-product-details .pd-image {
+  flex: 0 0 260px;
+  min-height: 280px;
+  overflow: hidden;
+}
+
+main .get-product-details .pd-content {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+main .get-product-details .pd-category {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.16);
+  color: inherit;
+}
+
+main .get-product-details .pd-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: inherit;
+}
+
+main .get-product-details .pd-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.78;
+  color: inherit;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+main .get-product-details .pd-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: inherit;
+}
+
+main .get-product-details .pd-chip-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+main .get-product-details .pd-chip-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.65;
+}
+
+main .get-product-details .pd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+main .get-product-details .pd-chip {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: inherit;
+}
+
+main .get-product-details .pd-cta {
+  margin-top: auto;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #555555;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+main .get-product-details .pd-cta:hover {
+  opacity: 0.88;
+}
+
+/* Empty state — lookup form */
+main .get-product-details .pd-lookup {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+main .get-product-details .pd-lookup-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+
+main .get-product-details .pd-lookup-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  background: #fff;
+  color: #333;
+}
+
+main .get-product-details .pd-lookup-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+main .get-product-details .pd-lookup-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+main .get-product-details .pd-lookup-btn:hover {
+  opacity: 0.9;
+}
+
+/* Responsive — stack on very narrow widths */
+@media (max-width: 480px) {
+  main .get-product-details .product-detail-card {
+    flex-direction: column;
+  }
+  main .get-product-details .pd-image {
+    flex: 0 0 160px;
+    min-height: 160px;
+  }
+}
+
+/* Dark theme — dim outer background; palette card strip already dark */
+@media (prefers-color-scheme: dark) {
+  main .get-product-details { background: #111; }
+  main .get-product-details .pd-lookup { background: #1e1e1e; }
+  main .get-product-details .pd-lookup-title { color: #f0f0f0; }
+  main .get-product-details .pd-lookup-input { background: #2a2a2a; border-color: #444; color: #eee; }
+}
+body.dark main .get-product-details { background: #111; }
+body.dark main .get-product-details .pd-lookup { background: #1e1e1e; }
+body.dark main .get-product-details .pd-lookup-title { color: #f0f0f0; }
+body.dark main .get-product-details .pd-lookup-input { background: #2a2a2a; border-color: #444; color: #eee; }
