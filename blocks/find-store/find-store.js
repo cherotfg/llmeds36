@@ -3,21 +3,27 @@
 // In production, data comes dynamically from bridge.toolResult.
 const SAMPLE_DATA = [
   {
-    name: 'adidas Sydney CBD',
-    address: 'Shop 42, Pitt Street Mall, Sydney NSW 2000',
-    phone: '(02) 9221 4455',
-    hours: 'Mon-Sat 9am-7pm, Sun 10am-6pm',
+    name: 'Nike Sydney George Street',
+    address: '77 George St, Sydney NSW 2000',
+    phone: '(02) 9247 1188',
+    hours: 'Mon–Sat 9am–7pm, Sun 10am–6pm',
   },
   {
-    name: 'adidas Bondi Junction',
-    address: 'Westfield, 500 Oxford St, Bondi Junction NSW 2022',
-    phone: '(02) 9387 1122',
-    hours: 'Mon-Sun 9am-6pm',
+    name: 'Nike Bondi Junction',
+    address: '500 Oxford St, Bondi Junction NSW 2022',
+    phone: '(02) 9387 4422',
+    hours: 'Mon–Sun 9am–6pm',
+  },
+  {
+    name: 'Nike Broadway',
+    address: '1 Bay St, Broadway NSW 2007',
+    phone: '(02) 9211 3300',
+    hours: 'Mon–Sat 9:30am–6pm, Sun 10am–5pm',
   },
 ];
 
-// Brand palette from BuildWidgetRequest (empty for this action).
-// getThemedCardBg() darkens palette[0] to luminance <= 0.12 for WCAG AA contrast.
+// Brand palette from BuildWidgetRequest (empty here → fallback colors used).
+// getThemedCardBg() darkens palette[0] to luminance ≤ 0.12 for WCAG AA white text.
 const PALETTE = [];
 function getThemedCardBg(palette) {
   if (!palette || !palette[0]) return null;
@@ -29,137 +35,15 @@ function getThemedCardBg(palette) {
   const lum = (c) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
   const relLum = (rr, gg, bb) => 0.2126 * lum(rr) + 0.7152 * lum(gg) + 0.0722 * lum(bb);
   if (relLum(r, g, b) <= 0.12) return { bg: `#${hex}`, fg: '#ffffff' };
-  let lo = 0; let hi = 1;
-  for (let i = 0; i < 20; i++) {
-    const m = (lo + hi) / 2;
-    if (relLum(Math.round(r * m), Math.round(g * m), Math.round(b * m)) > 0.12) hi = m; else lo = m;
-  }
-  const dr = Math.round(r * lo); const dg = Math.round(g * lo); const db = Math.round(b * lo);
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 20; i++) { const m = (lo + hi) / 2; if (relLum(Math.round(r * m), Math.round(g * m), Math.round(b * m)) > 0.12) hi = m; else lo = m; }
+  const dr = Math.round(r * lo), dg = Math.round(g * lo), db = Math.round(b * lo);
   return { bg: `#${dr.toString(16).padStart(2, '0')}${dg.toString(16).padStart(2, '0')}${db.toString(16).padStart(2, '0')}`, fg: '#ffffff' };
 }
 const theme = getThemedCardBg(PALETTE);
 const CARD_BG = theme?.bg ?? '#1a3a5c';
 const CARD_FG = theme?.fg ?? '#ffffff';
 const ACCENT = '#2563eb';
-
-function pinIcon(size, color) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('width', String(size));
-  svg.setAttribute('height', String(size));
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', color);
-  svg.setAttribute('stroke-width', '2');
-  svg.setAttribute('stroke-linecap', 'round');
-  svg.setAttribute('stroke-linejoin', 'round');
-  const p1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  p1.setAttribute('d', 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z');
-  const c1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  c1.setAttribute('cx', '12'); c1.setAttribute('cy', '10'); c1.setAttribute('r', '3');
-  svg.appendChild(p1); svg.appendChild(c1);
-  return svg;
-}
-
-function renderEmptyState(block, bridge) {
-  const card = document.createElement('div');
-  card.className = 'find-store-empty';
-  card.style.cssText = `background:${CARD_BG};color:${CARD_FG}`;
-
-  const iconWrap = document.createElement('div');
-  iconWrap.className = 'find-store-empty-icon';
-  iconWrap.appendChild(pinIcon(40, CARD_FG));
-  card.appendChild(iconWrap);
-
-  const heading = document.createElement('h3');
-  heading.className = 'find-store-empty-heading';
-  heading.textContent = 'Find a store near you';
-  card.appendChild(heading);
-
-  const form = document.createElement('form');
-  form.className = 'find-store-form';
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'find-store-input';
-  input.placeholder = 'Enter suburb or postcode…';
-  input.setAttribute('aria-label', 'Suburb or postcode');
-  form.appendChild(input);
-
-  const btn = document.createElement('button');
-  btn.type = 'submit';
-  btn.className = 'find-store-btn';
-  btn.textContent = 'Find Stores';
-  btn.style.cssText = `background:${ACCENT};color:#fff`;
-  form.appendChild(btn);
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const loc = input.value.trim();
-    if (bridge && loc) {
-      bridge.sendMessage(`Find an adidas store near ${loc}`);
-    }
-  });
-
-  card.appendChild(form);
-  block.appendChild(card);
-}
-
-function renderStores(block, stores, bridge) {
-  const row = document.createElement('div');
-  row.className = 'find-store-row';
-
-  stores.slice(0, 2).forEach((store) => {
-    const card = document.createElement('div');
-    card.className = 'find-store-card';
-    card.style.cssText = `background:${CARD_BG};color:${CARD_FG}`;
-
-    const pinWrap = document.createElement('div');
-    pinWrap.className = 'find-store-pin';
-    pinWrap.appendChild(pinIcon(18, CARD_FG));
-    card.appendChild(pinWrap);
-
-    const name = document.createElement('h3');
-    name.className = 'find-store-name';
-    name.textContent = store.name || '';
-    card.appendChild(name);
-
-    if (store.address) {
-      const addr = document.createElement('p');
-      addr.className = 'find-store-address';
-      addr.textContent = store.address;
-      card.appendChild(addr);
-    }
-
-    if (store.phone) {
-      const phone = document.createElement('p');
-      phone.className = 'find-store-phone';
-      phone.textContent = store.phone;
-      phone.style.color = ACCENT;
-      card.appendChild(phone);
-    }
-
-    if (store.hours) {
-      const hours = document.createElement('p');
-      hours.className = 'find-store-hours';
-      hours.textContent = store.hours;
-      card.appendChild(hours);
-    }
-
-    if (bridge && store.name) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'find-store-more';
-      btn.textContent = 'More info';
-      btn.style.cssText = `background:${ACCENT};color:#fff`;
-      btn.addEventListener('click', () => bridge.sendMessage(`Tell me more about ${store.name}`));
-      card.appendChild(btn);
-    }
-
-    row.appendChild(card);
-  });
-
-  block.appendChild(row);
-}
 
 export default async function decorate(block, bridge) {
   let stores;
@@ -180,11 +64,7 @@ export default async function decorate(block, bridge) {
   }
 
   block.textContent = '';
-  if (Array.isArray(stores) && stores.length > 0) {
-    renderStores(block, stores, bridge);
-  } else {
-    renderEmptyState(block, bridge);
-  }
+  render(block, stores, bridge);
 
   if (bridge) {
     bridge.reportSize(block.offsetWidth, block.offsetHeight);
@@ -194,5 +74,119 @@ export default async function decorate(block, bridge) {
       resizeTimer = setTimeout(() => bridge.reportSize(block.offsetWidth, block.offsetHeight), 150);
     });
     ro.observe(block);
+  }
+}
+
+function pinIcon(color) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('width', '18');
+  svg.setAttribute('height', '18');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', color);
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  p.setAttribute('d', 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z');
+  const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  c.setAttribute('cx', '12'); c.setAttribute('cy', '10'); c.setAttribute('r', '3');
+  svg.appendChild(p); svg.appendChild(c);
+  return svg;
+}
+
+function renderEmpty(block, bridge) {
+  const card = document.createElement('div');
+  card.className = 'find-store-search';
+  card.style.cssText = `background:${CARD_BG};color:${CARD_FG}`;
+
+  const iconWrap = document.createElement('div');
+  iconWrap.className = 'find-store-search-icon';
+  iconWrap.appendChild(pinIcon(CARD_FG));
+  card.appendChild(iconWrap);
+
+  const heading = document.createElement('h3');
+  heading.className = 'find-store-search-heading';
+  heading.textContent = 'Find a store near you';
+  card.appendChild(heading);
+
+  const form = document.createElement('form');
+  form.className = 'find-store-form';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'find-store-input';
+  input.placeholder = 'Enter suburb or postcode…';
+  input.setAttribute('aria-label', 'Enter suburb or postcode');
+  form.appendChild(input);
+
+  const btn = document.createElement('button');
+  btn.type = 'submit';
+  btn.className = 'find-store-btn';
+  btn.textContent = 'Find a Store';
+  form.appendChild(btn);
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const loc = input.value.trim();
+    if (bridge && loc) bridge.sendMessage(`Find a Nike store near ${loc}`);
+  });
+
+  card.appendChild(form);
+  block.appendChild(card);
+}
+
+function renderStores(block, stores, bridge) {
+  const row = document.createElement('div');
+  row.className = 'find-store-results';
+
+  stores.slice(0, 2).forEach((store) => {
+    const card = document.createElement('div');
+    card.className = 'find-store-card';
+    card.style.cssText = `background:${CARD_BG};color:${CARD_FG}`;
+
+    const pin = document.createElement('div');
+    pin.className = 'find-store-pin';
+    pin.appendChild(pinIcon(CARD_FG));
+    card.appendChild(pin);
+
+    const name = document.createElement('h3');
+    name.className = 'find-store-name';
+    name.textContent = store.name || '';
+    card.appendChild(name);
+
+    if (store.address) {
+      const addr = document.createElement('p');
+      addr.className = 'find-store-address';
+      addr.textContent = store.address;
+      card.appendChild(addr);
+    }
+
+    if (store.phone) {
+      const phone = document.createElement('p');
+      phone.className = 'find-store-phone';
+      phone.style.color = ACCENT;
+      phone.textContent = store.phone;
+      card.appendChild(phone);
+    }
+
+    if (store.hours) {
+      const hours = document.createElement('p');
+      hours.className = 'find-store-hours';
+      hours.textContent = store.hours;
+      card.appendChild(hours);
+    }
+
+    row.appendChild(card);
+  });
+
+  block.appendChild(row);
+}
+
+function render(block, stores, bridge) {
+  if (Array.isArray(stores) && stores.length > 0) {
+    renderStores(block, stores, bridge);
+  } else {
+    renderEmpty(block, bridge);
   }
 }
